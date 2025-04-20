@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="22 Apr 2024"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvCategory"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Gaji"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvAmount"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Rp 10.000.000"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvPaymentMethod"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Transfer Bank"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <ImageView
+        android:id="@+id/ivDelete"
+        android:layout_width="60dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="Hapus"
+        android:src="@drawable/ic_delete" />
+
+    <ImageView
+        android:id="@+id/ivViewReceipt"
+        android:layout_width="60dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:contentDescription="Lihat Bukti"
+        android:src="@drawable/ic_eye" />
+</LinearLayout>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permission untuk akses gambar -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="ProjectAkhirPAM"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ProjectAkhirPAM">
+
+        <!-- Manage Items -->
+        <activity android:name=".ManageItemsActivity" />
+
+        <!-- Add Items -->
+        <activity android:name=".AddItemActivity" />
+
+        <!-- Add Incomes Activity -->
+        <activity android:name=".AddIncomesActivity" />
+
+        <!-- Add Financials Activity -->
+        <activity android:name=".ManageFinancialsActivity" />
+
+        <!-- Add Expenses Activity -->
+        <activity android:name=".AddExpensesActivity" />
+
+        <!-- Add Manage Expenses Activity -->
+        <activity android:name=".ManageExpensesActivity" />
+
+        <!-- Add Credits TEAM Activity -->
+        <activity android:name=".CreditsTeamActivity" />
+
+        <!-- MainActivity dengan intent filter HARUS punya android:exported -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
