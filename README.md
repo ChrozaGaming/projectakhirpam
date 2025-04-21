@@ -9,7 +9,7 @@ Sistem Android untuk pencatatan **barang dan keuangan** yang sederhana namun pow
 - **📘 Mata Kuliah:** Pengembangan Aplikasi Mobile  
 - **🏛️ Program Studi:** Teknologi Informasi  
 - **👨‍🏫 Dosen Pengampu:** Muhammad Aminul Akbar, S.Kom., M.T.  
-- **📈 Progress Saat Ini:** Progress I - UI, Activity, Intent, dan Event Handling
+- **📈 Progress Saat Ini:** Progress II - Recycle View
 
 ---
 
@@ -111,6 +111,57 @@ $ cd project-mbk
 
 # 3. Sync Gradle
 # 4. Jalankan di emulator atau device Android
+```
+
+---
+
+## 📂 Struktur Folder Project
+
+```
+project-mbk/
+├── app/
+│   ├── manifests/
+│   │   └── AndroidManifest.xml
+│   │
+│   ├── java/com/example/projectmbk/
+│   │   ├── AddExpensesActivity.kt
+│   │   ├── AddIncomesActivity.kt
+│   │   ├── AddItemActivity.kt
+│   │   ├── FinancialTransactionAdapter.kt
+│   │   ├── FinancialTransactionModel.kt
+│   │   ├── ItemAdapter.kt
+│   │   ├── ItemModel.kt
+│   │   ├── MainActivity.kt
+│   │   ├── ManageExpensesActivity.kt
+│   │   ├── ManageFinancialsActivity.kt
+│   │   ├── ManageItemsActivity.kt
+│   │   └── utils/
+│   │       └── FormatUtil.kt (opsional)
+│   │
+│   ├── res/
+│   │   ├── layout/
+│   │   │   ├── activity_main.xml
+│   │   │   ├── activity_add_items.xml
+│   │   │   ├── activity_add_expenses.xml
+│   │   │   ├── activity_add_incomes.xml
+│   │   │   ├── activity_manage_items.xml
+│   │   │   ├── activity_manage_expenses.xml
+│   │   │   ├── activity_manage_financials.xml
+│   │   │   ├── item_inventory.xml
+│   │   │   ├── item_transaction.xml
+│   │   │   └── dialog_add_transaction.xml
+│   │   ├── menu/
+│   │   │   └── bottom_nav_menu.xml
+│   │   ├── values/
+│   │   │   ├── colors.xml
+│   │   │   ├── strings.xml
+│   │   │   └── styles.xml
+│   │   └── drawable/
+│   │       └── ic_*.xml
+│
+├── build.gradle
+├── settings.gradle
+└── README.md
 ```
 
 ---
