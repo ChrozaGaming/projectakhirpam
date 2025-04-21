@@ -176,7 +176,7 @@ project-mbk/
 
 ---
 
-## 🙌 Kontribusi Anggota
+## 🙌 Kontribusi Anggota Progress 1
 
 | Anggota                  | Kontribusi                          |
 |--------------------------|-------------------------------------|
