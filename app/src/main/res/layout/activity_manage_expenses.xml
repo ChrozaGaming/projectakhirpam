@@ -19,28 +19,31 @@
             android:id="@+id/btn_back"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
+            android:contentDescription="Kembali"
             android:src="@drawable/ic_back"
-            android:tint="#333333"
+            android:tint="#1F4EC6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Judul -->
         <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="44dp"
+            android:layout_marginEnd="40dp"
             android:text="Manage Expenses"
-            android:textColor="#333333"
-            android:textSize="24sp"
+            android:textColor="#1F4EC6"
+            android:textSize="33sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/search_card"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@id/btn_back"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.64" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0" />
 
         <!-- Search -->
         <androidx.cardview.widget.CardView

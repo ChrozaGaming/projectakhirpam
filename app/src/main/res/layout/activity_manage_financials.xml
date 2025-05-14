@@ -8,8 +8,6 @@
     tools:context=".ManageFinancialsActivity">
 
     <!-- Tombol Back -->
-
-    <!-- Judul -->
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="48dp"
@@ -23,21 +21,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Judul -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="40dp"
         android:text="Manage Financial"
-        android:textAlignment="center"
         android:textColor="#1F4EC6"
         android:textSize="36sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/btn_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:textAlignment="center"
+        app:layout_constraintStart_toEndOf="@id/btn_back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0" />
 
     <!-- CardView Tabel -->
     <androidx.cardview.widget.CardView
@@ -76,15 +75,15 @@
                     android:orientation="horizontal"
                     android:padding="16dp">
 
-                    <TextView android:layout_width="150dp" android:layout_height="wrap_content" android:text="Tanggal" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold"/>
-                    <TextView android:layout_width="150dp" android:layout_height="wrap_content" android:text="Kategori" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold"/>
-                    <TextView android:layout_width="150dp" android:layout_height="wrap_content" android:text="Jumlah" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold"/>
-                    <TextView android:layout_width="200dp" android:layout_height="wrap_content" android:text="Metode Pembayaran" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold"/>
-                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Actions" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="150dp" android:layout_height="wrap_content" android:text="Tanggal" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:layout_width="150dp" android:layout_height="wrap_content" android:text="Kategori" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:layout_width="150dp" android:layout_height="wrap_content" android:text="Jumlah" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:layout_width="200dp" android:layout_height="wrap_content" android:text="Metode Pembayaran" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Actions" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" />
 
             <!-- Konten RecycleView -->
             <HorizontalScrollView
@@ -119,3 +118,4 @@
         app:tint="#FFFFFF" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
