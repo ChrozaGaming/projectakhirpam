@@ -7,5 +7,12 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="TextBlue">
+        <!-- warna biru utama aplikasi Anda -->
+        <item name="android:textColor">@color/blue_primary</item>
+        <!-- ukuran default agar konsisten -->
+        <item name="android:textSize">16sp</item>
+    </style>
+
     <!-- Avtar Circle Image // END -->
 </resources>

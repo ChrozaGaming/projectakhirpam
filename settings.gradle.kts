@@ -1,26 +1,36 @@
+// ────────────────────────────────────────────────
+// Konfigurasi repositori plugin & dependency
+// ────────────────────────────────────────────────
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        // 1) Google Maven – berisi AGP, AndroidX, Firebase plugin, dsb.
+        google()
+
+        // 2) Maven Central – library Java/Kotlin publik
         mavenCentral()
+
+        // 3) Gradle Plugin Portal – plugin komunitas (org.jetbrains.kotlin.android, dst.)
         gradlePluginPortal()
-        maven { url = uri("https://jitpack.io") } // jika pakai library dari GitHub
+
+        // 4) JitPack – library dari GitHub (mis. Material-MultiSelection-Spinner)
+        maven("https://jitpack.io")
     }
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)  // Gunakan ini untuk Gradle versi baru
+    // Pakai repositori yang dideklarasikan di blok ini,
+    // bukan di setiap modul (direkomendasikan Gradle 8+)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") }
+        maven("https://jitpack.io")
     }
 }
 
+// ────────────────────────────────────────────────
+// Deklarasi modul
+// ────────────────────────────────────────────────
 rootProject.name = "projectakhirpam"
 include(":app")

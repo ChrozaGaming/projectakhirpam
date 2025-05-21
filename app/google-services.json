@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "987670630036",
+    "firebase_url": "https://projectakhirpam-20f61-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "projectakhirpam-20f61",
+    "storage_bucket": "projectakhirpam-20f61.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987670630036:android:9f6ddc6d2a251dd186ae81",
+        "android_client_info": {
+          "package_name": "com.example.projectakhirpam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCc2Vwzjnt7FFIgK9IVa-am-p8R8ruZLrI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
