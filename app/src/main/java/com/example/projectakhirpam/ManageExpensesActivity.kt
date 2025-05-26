@@ -1,104 +1,115 @@
 package com.example.projectakhirpam
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.*
-import android.widget.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
-// Data class untuk satu entri pengeluaran
-data class Expense(
-    val tanggal: String,
-    val kategori: String,
-    val jumlah: String,
-    val metodePembayaran: String,
-    val deskripsi: String,
-    val penerima: String,
-    val buktiUrl: String
-)
+import com.example.projectakhirpam.databinding.ActivityManageExpensesBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class ManageExpensesActivity : AppCompatActivity() {
 
-    private lateinit var expenseAdapter: ExpenseAdapter
-    private val expenseList = mutableListOf(
-        Expense("12 Apr 2025", "Makanan", "IDR 75.000", "E-wallet", "Lunch bareng tim", "Warung A", "bukti1.jpg"),
-        Expense("13 Apr 2025", "Transportasi", "IDR 20.000", "Tunai", "Naik ojek", "Pak Budi", "bukti2.jpg")
-    )
+    private lateinit var b       : ActivityManageExpensesBinding
+    private lateinit var adapter : ExpenseAdapter
+    private lateinit var refExp  : DatabaseReference
+    private var listener         : ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_manage_expenses)
+        b = ActivityManageExpensesBinding.inflate(layoutInflater)
+        setContentView(b.root)
 
-        // Inisialisasi RecyclerView
-        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view_expenses)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        /* tombol back */
+        b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        // Inisialisasi Adapter
-        expenseAdapter = ExpenseAdapter(expenseList,
-            onViewClick = { expense ->
-                Toast.makeText(this, "Lihat bukti: ${expense.buktiUrl}", Toast.LENGTH_SHORT).show()
-            },
-            onDeleteClick = { expense ->
-                expenseList.remove(expense)
-                expenseAdapter.notifyDataSetChanged()
-                Toast.makeText(this, "Pengeluaran dihapus", Toast.LENGTH_SHORT).show()
+        /* path  /users/{uid}/expenses */
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        refExp  = FirebaseDatabase.getInstance()
+            .reference.child("users").child(uid).child("expenses")
+
+        /* RecyclerView */
+        adapter = ExpenseAdapter(
+            onDelete = { exp -> deleteExpense(exp) },
+            onView   = { exp ->
+                if (exp.receiptUrl.isNotEmpty()) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(exp.receiptUrl)))
+                } else {
+                    Toast.makeText(this, "Tidak ada bukti", Toast.LENGTH_SHORT).show()
+                }
             }
         )
-        recyclerView.adapter = expenseAdapter
+        b.recyclerViewExpenses.layoutManager = LinearLayoutManager(this)
+        b.recyclerViewExpenses.adapter       = adapter
 
-        // Tombol kembali ke activity sebelumnya
-        val btnBack = findViewById<ImageButton>(R.id.btn_back)
-        btnBack.setOnClickListener {
-            finish()
+        /* FAB → form tambah */
+        b.fabAdd.setOnClickListener {
+            startActivity(Intent(this, AddExpensesActivity::class.java))
         }
 
-        // FAB ke halaman tambah pengeluaran
-        val fabAdd = findViewById<View>(R.id.fab_add)
-        fabAdd.setOnClickListener {
-            val intent = Intent(this, AddExpensesActivity::class.java)
-            startActivity(intent)
-        }
+        syncHeader()      // sinkron scroll header & isi
     }
 
-    // Adapter RecyclerView internal
-    class ExpenseAdapter(
-        private val expenses: List<Expense>,
-        private val onViewClick: (Expense) -> Unit,
-        private val onDeleteClick: (Expense) -> Unit
-    ) : RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
+    /* -------------------- Real-time listener -------------------- */
+    override fun onStart() {
+        super.onStart()
+        listener = refExp.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snap: DataSnapshot) {
+                val list = snap.children
+                    .mapNotNull { it.getValue(Expense::class.java) }
+                    .sortedByDescending { it.date }
+                adapter.submit(list)
+            }
+            override fun onCancelled(error: DatabaseError) { /* no-op */ }
+        })
+    }
+    override fun onStop() {
+        super.onStop()
+        listener?.let { refExp.removeEventListener(it) }
+    }
 
-        inner class ExpenseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val tvTanggal: TextView = view.findViewById(R.id.tv_tanggal)
-            val tvKategori: TextView = view.findViewById(R.id.tv_kategori)
-            val tvJumlah: TextView = view.findViewById(R.id.tv_jumlah)
-            val tvMetode: TextView = view.findViewById(R.id.tv_metode)
-            val tvDeskripsi: TextView = view.findViewById(R.id.tv_deskripsi)
-            val tvPenerima: TextView = view.findViewById(R.id.tv_penerima)
-            val btnView: ImageButton = view.findViewById(R.id.btn_view_receipt)
-            val btnDelete: ImageButton = view.findViewById(R.id.btn_delete)
+    /* -------------------- Hapus + perbaiki saldo -------------------- */
+    private fun deleteExpense(exp: Expense) {
+        refExp.child(exp.id).removeValue()
+            .addOnSuccessListener {
+                updateBalance(+exp.amount)   // hapus pengeluaran → saldo naik
+                Toast.makeText(this, "Dihapus", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Gagal: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    /** balance naik, totalExpense turun */
+    private fun updateBalance(delta: Long) {
+        val uid      = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userRef  = FirebaseDatabase.getInstance().reference.child("users").child(uid)
+
+        fun change(node: String, plus: Boolean) {
+            userRef.child(node).runTransaction(object : Transaction.Handler {
+                override fun doTransaction(cur: MutableData): Transaction.Result {
+                    val now = cur.getValue(Long::class.java) ?: 0L
+                    cur.value = if (plus) now + delta else now - delta
+                    return Transaction.success(cur)
+                }
+                override fun onComplete(e: DatabaseError?, committed: Boolean, snap: DataSnapshot?) {}
+            })
         }
+        change("balance",      true)   // saldo + delta
+        change("totalExpense", false)  // totalExpense - delta
+    }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpenseViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_expenses, parent, false) // ✅ gunakan layout item_expenses.xml
-            return ExpenseViewHolder(view)
+    /* -------------------- Sinkron scroll header / body -------------------- */
+    private fun syncHeader() {
+        /* geser header → geser isi */
+        b.headerScrollView.setOnScrollChangeListener { _, x, _, _, _ ->
+            b.contentScrollView.scrollTo(x, 0)
         }
-
-        override fun onBindViewHolder(holder: ExpenseViewHolder, position: Int) {
-            val expense = expenses[position]
-            holder.tvTanggal.text = expense.tanggal
-            holder.tvKategori.text = expense.kategori
-            holder.tvJumlah.text = expense.jumlah
-            holder.tvMetode.text = expense.metodePembayaran
-            holder.tvDeskripsi.text = expense.deskripsi
-            holder.tvPenerima.text = expense.penerima
-
-            holder.btnView.setOnClickListener { onViewClick(expense) }
-            holder.btnDelete.setOnClickListener { onDeleteClick(expense) }
+        /* geser isi → geser header */
+        b.contentScrollView.setOnScrollChangeListener { _, x, _, _, _ ->
+            b.headerScrollView.scrollTo(x, 0)
         }
-
-        override fun getItemCount(): Int = expenses.size
     }
 }

@@ -9,12 +9,13 @@
     android:background="#F9F9F9"
     tools:context=".ManageExpensesActivity">
 
+    <!-- ───── Konten utama ───── -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <!-- Tombol Back -->
+        <!-- tombol back -->
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="48dp"
@@ -28,7 +29,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Judul -->
+        <!-- judul -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="0dp"
@@ -36,16 +37,16 @@
             android:layout_marginTop="44dp"
             android:layout_marginEnd="40dp"
             android:text="Manage Expenses"
+            android:textAlignment="center"
             android:textColor="#1F4EC6"
             android:textSize="33sp"
             android:textStyle="bold"
-            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@id/btn_back"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0" />
+            app:layout_constraintHorizontal_bias="0" />
 
-        <!-- Search -->
+        <!-- kotak search -->
         <androidx.cardview.widget.CardView
             android:id="@+id/search_card"
             android:layout_width="0dp"
@@ -83,7 +84,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Tabel Pengeluaran -->
+        <!-- CardView tabel -->
         <androidx.cardview.widget.CardView
             android:id="@+id/expenses_card"
             android:layout_width="0dp"
@@ -96,105 +97,62 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <HorizontalScrollView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="horizontal">
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                <!-- header kolom (scroll horisontal) -->
+                <HorizontalScrollView
+                    android:id="@+id/headerScrollView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:fillViewport="true">
 
-                    <!-- Header Kolom -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:padding="16dp"
+                        android:orientation="horizontal"
                         android:background="#F5F5F5">
 
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:text="Tanggal"
-                            android:textColor="#333333"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:text="Kategori"
-                            android:gravity="center"
-                            android:textColor="#333333"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:text="Jumlah"
-                            android:gravity="center"
-                            android:textColor="#333333"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:text="Metode"
-                            android:gravity="center"
-                            android:textColor="#333333"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:text="Deskripsi"
-                            android:gravity="center"
-                            android:textColor="#333333"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:text="Penerima"
-                            android:gravity="center"
-                            android:textColor="#333333"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:text="Actions"
-                            android:gravity="center"
-                            android:textColor="#333333"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
+                        <TextView android:layout_width="130dp" android:layout_height="wrap_content" android:text="Tanggal"   android:textStyle="bold" android:textColor="#333" android:textSize="16sp"/>
+                        <TextView android:layout_width="130dp" android:layout_height="wrap_content" android:text="Kategori"  android:textStyle="bold" android:textColor="#333" android:textSize="16sp" android:gravity="center"/>
+                        <TextView android:layout_width="130dp" android:layout_height="wrap_content" android:text="Jumlah"    android:textStyle="bold" android:textColor="#333" android:textSize="16sp" android:gravity="center"/>
+                        <TextView android:layout_width="130dp" android:layout_height="wrap_content" android:text="Metode"    android:textStyle="bold" android:textColor="#333" android:textSize="16sp" android:gravity="center"/>
+                        <TextView android:layout_width="130dp" android:layout_height="wrap_content" android:text="Deskripsi" android:textStyle="bold" android:textColor="#333" android:textSize="16sp" android:gravity="center"/>
+                        <TextView android:layout_width="130dp" android:layout_height="wrap_content" android:text="Penerima"  android:textStyle="bold" android:textColor="#333" android:textSize="16sp" android:gravity="center"/>
+                        <TextView android:layout_width="130dp" android:layout_height="wrap_content" android:text="Actions"   android:textStyle="bold" android:textColor="#333" android:textSize="16sp" android:gravity="center"/>
                     </LinearLayout>
+                </HorizontalScrollView>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#E0E0E0" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E0E0E0"/>
+
+                <!-- isi tabel (scroll horisontal) -->
+                <HorizontalScrollView
+                    android:id="@+id/contentScrollView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="none"
+                    android:fillViewport="true">
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recycler_view_expenses"
+                        android:id="@+id/recyclerViewExpenses"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:clipToPadding="false"
                         android:overScrollMode="never"
                         android:paddingBottom="8dp"
-                        tools:listitem="@layout/item_expense" />
-                </LinearLayout>
-            </HorizontalScrollView>
+                        tools:listitem="@layout/item_expenses"/>
+                </HorizontalScrollView>
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Tombol Tambah -->
+        <!-- FAB tambah -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add"
             android:layout_width="wrap_content"

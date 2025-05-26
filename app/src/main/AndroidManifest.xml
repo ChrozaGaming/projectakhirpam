@@ -31,6 +31,14 @@
             android:exported="true" />
 
         <!-- (activity lain → AddItemActivity, ManageItemsActivity, dsb.) -->
+        <activity
+            android:name=".AddIncomesActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".AddExpensesActivity"
+            android:exported="false"/>
+
         <activity android:name=".AddItemActivity"     android:exported="true" />
         <activity android:name=".ManageItemsActivity" android:exported="true" />
         <activity android:name=".ManageFinancialsActivity" android:exported="true" />

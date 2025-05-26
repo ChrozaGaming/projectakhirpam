@@ -81,11 +81,12 @@
                             android:textColor="#666666"
                             android:textSize="14sp"/>
 
+                        <!-- ganti id tv_username → tv_full_name agar lebih deskriptif -->
                         <TextView
-                            android:id="@+id/tv_username"
+                            android:id="@+id/tv_full_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Hilmy Raihan"
+                            android:text="Username"
                             android:textColor="#333333"
                             android:textSize="20sp"
                             android:textStyle="bold"/>
@@ -127,13 +128,14 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tv_balance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:background="@drawable/rounded_background"
                         android:gravity="center"
                         android:padding="16dp"
-                        android:text="IDR 25,600,000"
+                        android:text="IDR 0"
                         android:textColor="#333333"
                         android:textSize="24sp"
                         android:textStyle="bold" />

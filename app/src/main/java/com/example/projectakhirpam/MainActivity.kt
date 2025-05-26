@@ -10,48 +10,55 @@ import com.google.firebase.database.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var userRef: DatabaseReference
-    private var listener: ValueEventListener? = null
+    private lateinit var b       : ActivityMainBinding
+    private lateinit var auth    : FirebaseAuth
+    private lateinit var userRef : DatabaseReference
+    private var listener         : ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        b = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(b.root)
 
-        /* ---------- ambil nama ---------- */
+        /* ---------- MUAT PROFIL USER ---------- */
         auth = FirebaseAuth.getInstance()
-        auth.currentUser?.uid?.let { uid ->
-            userRef = FirebaseDatabase.getInstance().reference.child("users").child(uid)
-
-            listener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val fullName = snapshot.child("fullName").getValue(String::class.java)
-                    binding.tvUsername.text = fullName ?: "User"
-                }
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(this@MainActivity,
-                        "Gagal memuat nama: ${error.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-            userRef.addListenerForSingleValueEvent(listener!!)
+        val uid = auth.currentUser?.uid
+        if (uid == null) {                 // user belum login → keluar
+            finish(); return
         }
 
-        /* ---------- tombol navigasi ---------- */
-        binding.apply {
-            btnManageItems.setOnClickListener {
-                startActivity(Intent(this@MainActivity, ManageItemsActivity::class.java))
+        userRef = FirebaseDatabase.getInstance()
+            .reference.child("users").child(uid)
+
+        listener = object : ValueEventListener {
+            override fun onDataChange(s: DataSnapshot) {
+                /* nama */
+                val name = s.child("fullName").getValue(String::class.java) ?: "User"
+                b.tvFullName.text = name
+
+                /* saldo – default 0 jika field belum ada */
+                val balance = s.child("balance").getValue(Long::class.java) ?: 0L
+                b.tvBalance.text = "IDR %,d".format(balance)
             }
-            btnAddItem.setOnClickListener {
-                startActivity(Intent(this@MainActivity, AddItemActivity::class.java))
+            override fun onCancelled(e: DatabaseError) {
+                Toast.makeText(this@MainActivity,
+                    "Gagal memuat data: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            btnIncome.setOnClickListener {
-                startActivity(Intent(this@MainActivity, ManageFinancialsActivity::class.java))
-            }
-            btnExpenses.setOnClickListener {
-                startActivity(Intent(this@MainActivity, ManageExpensesActivity::class.java))
-            }
+        }
+        userRef.addValueEventListener(listener!!)
+
+        /* ---------- TOMBOL NAVIGASI ---------- */
+        b.btnAddItem.setOnClickListener {
+            startActivity(Intent(this, AddItemActivity::class.java))
+        }
+        b.btnManageItems.setOnClickListener {
+            startActivity(Intent(this, ManageItemsActivity::class.java))
+        }
+        b.btnIncome.setOnClickListener {
+            startActivity(Intent(this, ManageFinancialsActivity::class.java))
+        }
+        b.btnExpenses.setOnClickListener {
+            startActivity(Intent(this, ManageExpensesActivity::class.java))
         }
     }
 
