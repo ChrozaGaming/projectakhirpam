@@ -1,43 +1,77 @@
 package com.example.projectakhirpam
 
-import android.content.Intent // ✅ tambahkan ini
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projectakhirpam.databinding.ActivityManageItemsBinding
-
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class ManageItemsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityManageItemsBinding
+    private lateinit var b       : ActivityManageItemsBinding
+    private lateinit var adapter : ItemAdapter
+    private lateinit var refItem : DatabaseReference
+    private var listener : ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityManageItemsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        b = ActivityManageItemsBinding.inflate(layoutInflater)
+        setContentView(b.root)
 
-        // Tombol back fungsional
-        binding.btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        /* ← back */
+        b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        // Dummy Data
-        val itemList = listOf(
-            ItemModel("Barang A", 10, "KDA001", "IDR 50.000"),
-            ItemModel("Barang B", 20, "KDA002", "IDR 75.000"),
-            ItemModel("Barang C", 30, "KDA003", "IDR 100.000.000"),
-            ItemModel("Barang D", 5, "KDA004", "IDR 25.000")
+        /* path /users/{uid}/items */
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        refItem = FirebaseDatabase.getInstance()
+            .reference.child("users").child(uid).child("items")
+
+        /* Recycler */
+        adapter = ItemAdapter(
+            onDelete = { item -> deleteItem(item) },
+            onEdit   = { item  ->
+                // Contoh simpel: buka AddItemActivity dengan extra untuk edit,
+                // (belum di-implement detail; bisa Anda kembangkan sendiri)
+                val i = Intent(this, AddItemActivity::class.java)
+                i.putExtra("EDIT_ID", item.id)
+                startActivity(i)
+            }
         )
+        b.recyclerView.layoutManager = LinearLayoutManager(this)
+        b.recyclerView.adapter       = adapter
 
-        // Setup RecyclerView
-        val adapter = ItemAdapter(itemList)
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = adapter
-
-        // FAB Add Item
-        binding.fabAdd.setOnClickListener {
-            val intent = Intent(this, AddItemActivity::class.java)
-            startActivity(intent)
+        /* FAB tambah */
+        b.fabAdd.setOnClickListener {
+            startActivity(Intent(this, AddItemActivity::class.java))
         }
+    }
+
+    /* realtime listener */
+    override fun onStart() {
+        super.onStart()
+        listener = refItem.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(s: DataSnapshot) {
+                val list = s.children.mapNotNull { it.getValue(Item::class.java) }
+                adapter.submit(list)
+            }
+            override fun onCancelled(e: DatabaseError) { }
+        })
+    }
+    override fun onStop() {
+        super.onStop(); listener?.let { refItem.removeEventListener(it) }
+    }
+
+    /* hapus item */
+    private fun deleteItem(item: Item) {
+        refItem.child(item.id).removeValue()
+            .addOnSuccessListener {
+                Toast.makeText(this, "Item dihapus", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Gagal hapus: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
     }
 }
