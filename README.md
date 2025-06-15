@@ -9,7 +9,7 @@ Sistem Android untuk pencatatan **barang dan keuangan** yang sederhana namun pow
 - **📘 Mata Kuliah:** Pengembangan Aplikasi Mobile  
 - **🏛️ Program Studi:** Teknologi Informasi  
 - **👨‍🏫 Dosen Pengampu:** Muhammad Aminul Akbar, S.Kom., M.T.  
-- **📈 Progress Saat Ini:** Progress II - Recycle View
+- **📈 Progress Saat Ini:** Progress IV - Firebase | Realtime Database
 
 ---
 
