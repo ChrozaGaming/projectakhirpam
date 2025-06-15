@@ -189,7 +189,7 @@ project-mbk/
 
 ## 📱 Tampilan Aplikasi
 
-<img width="410" alt="image" src="https://github.com/user-attachments/assets/18dc5b8c-ada7-48b5-bd06-3d9e2ecf6418" />
+
 <img width="392" alt="image" src="https://github.com/user-attachments/assets/0de23f8a-0ac8-487c-8e60-d02be9dbf960" />
 <img width="400" alt="image" src="https://github.com/user-attachments/assets/956a304d-0a3c-40e5-a16d-830cbf76c6d2" />
 <img width="393" alt="image" src="https://github.com/user-attachments/assets/f98a2201-84cf-42d6-bbe5-174bc4568873" />
