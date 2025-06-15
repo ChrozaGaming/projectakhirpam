@@ -9,40 +9,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectAkhirPAM">
-        <!-- ①  LoginActivity kini menjadi launcher -->
+
+        <!-- Login sebagai launcher utama -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <!-- ②  RegisterActivity (tidak launcher) -->
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="true" />
+        <!-- Auth -->
+        <activity android:name=".RegisterActivity" android:exported="true" />
+        <activity android:name=".MainActivity" android:exported="true" />
 
-        <!-- ③  MainActivity (tidak launcher) -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true" />
-
-        <!-- (activity lain → AddItemActivity, ManageItemsActivity, dsb.) -->
-        <activity
-            android:name=".AddIncomesActivity"
-            android:exported="false"/>
-
-        <activity
-            android:name=".AddExpensesActivity"
-            android:exported="false"/>
-
-        <activity android:name=".AddItemActivity"     android:exported="true" />
+        <!-- Item dan transaksi -->
+        <activity android:name=".AddItemActivity" android:exported="true" />
         <activity android:name=".ManageItemsActivity" android:exported="true" />
+        <activity android:name=".AddIncomesActivity" android:exported="false" />
+        <activity android:name=".AddExpensesActivity" android:exported="false" />
         <activity android:name=".ManageFinancialsActivity" android:exported="true" />
-        <activity android:name=".ManageExpensesActivity"   android:exported="true" />
+        <activity android:name=".ManageExpensesActivity" android:exported="true" />
+
+        <!-- StockOut -->
+        <activity android:name=".AddStockOutActivity" android:exported="true" />
+        <activity android:name=".ManageStockOutActivity" android:exported="true" />
+
+        <!-- Profil -->
+        <activity android:name=".ProfileActivity" android:exported="true" />
+        <activity android:name=".EditProfileActivity" android:exported="true" />
 
     </application>
 </manifest>
