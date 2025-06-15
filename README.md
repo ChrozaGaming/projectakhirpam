@@ -187,4 +187,32 @@ project-mbk/
 
 ---
 
+## 📱 Tampilan Aplikasi
+
+<img width="410" alt="image" src="https://github.com/user-attachments/assets/18dc5b8c-ada7-48b5-bd06-3d9e2ecf6418" />
+<img width="392" alt="image" src="https://github.com/user-attachments/assets/0de23f8a-0ac8-487c-8e60-d02be9dbf960" />
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/956a304d-0a3c-40e5-a16d-830cbf76c6d2" />
+<img width="393" alt="image" src="https://github.com/user-attachments/assets/f98a2201-84cf-42d6-bbe5-174bc4568873" />
+<img width="399" alt="image" src="https://github.com/user-attachments/assets/95399662-f181-434b-9f70-ecf34a175ea8" />
+<img width="406" alt="image" src="https://github.com/user-attachments/assets/5c026728-6567-4ca7-b65f-94d921747c2e" />
+
+<img width="407" alt="image" src="https://github.com/user-attachments/assets/7a052b24-8650-4f88-a11c-edd7b6637f20" />
+<img width="402" alt="image" src="https://github.com/user-attachments/assets/fce95eba-6317-4b6d-bc5e-3f422128f01a" />
+<img width="396" alt="image" src="https://github.com/user-attachments/assets/1a94a8f6-8461-4aba-9bdd-9892ae932ed9" />
+<img width="410" alt="image" src="https://github.com/user-attachments/assets/941169d5-4efe-465d-b0c3-2a137fbf4c5f" />
+<img width="401" alt="image" src="https://github.com/user-attachments/assets/e32ecbc0-8a01-4b8a-ac50-a1acbf070e5d" />
+<img width="402" alt="image" src="https://github.com/user-attachments/assets/45311f31-fb13-4e50-b8b1-e9a50e022ad5" />
+<img width="395" alt="image" src="https://github.com/user-attachments/assets/73d3fc5e-4e66-4894-a0ee-4cd94f876282" />
+<img width="403" alt="image" src="https://github.com/user-attachments/assets/cd0238f3-b2b8-4d2f-beb8-9421b6de92d9" />
+<img width="398" alt="image" src="https://github.com/user-attachments/assets/b012fb80-9863-456e-961e-498f903bf885" />
+
+
+
+
+
+
+
+
+
+
 © 2025 Kelompok MBK - Pengembangan Aplikasi Mobile 💼📲
