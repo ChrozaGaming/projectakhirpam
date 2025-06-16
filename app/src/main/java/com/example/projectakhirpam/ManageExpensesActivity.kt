@@ -1,7 +1,6 @@
 package com.example.projectakhirpam
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,25 +21,16 @@ class ManageExpensesActivity : AppCompatActivity() {
         b = ActivityManageExpensesBinding.inflate(layoutInflater)
         setContentView(b.root)
 
-        /* tombol back */
-        b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        /* ← back */
+        b.btnBack.setOnClickListener { finish() }
 
-        /* path  /users/{uid}/expenses */
+        /* Firebase path /users/{uid}/expenses */
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         refExp  = FirebaseDatabase.getInstance()
             .reference.child("users").child(uid).child("expenses")
 
-        /* RecyclerView */
-        adapter = ExpenseAdapter(
-            onDelete = { exp -> deleteExpense(exp) },
-            onView   = { exp ->
-                if (exp.receiptUrl.isNotEmpty()) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(exp.receiptUrl)))
-                } else {
-                    Toast.makeText(this, "Tidak ada bukti", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
+        /* Recycler */
+        adapter = ExpenseAdapter { exp -> deleteExpense(exp) }
         b.recyclerViewExpenses.layoutManager = LinearLayoutManager(this)
         b.recyclerViewExpenses.adapter       = adapter
 
@@ -49,10 +39,10 @@ class ManageExpensesActivity : AppCompatActivity() {
             startActivity(Intent(this, AddExpensesActivity::class.java))
         }
 
-        syncHeader()      // sinkron scroll header & isi
+        syncHeader()          // sinkronkan scroll header–isi
     }
 
-    /* -------------------- Real-time listener -------------------- */
+    /* ---------- realtime list ---------- */
     override fun onStart() {
         super.onStart()
         listener = refExp.addValueEventListener(object : ValueEventListener {
@@ -70,11 +60,11 @@ class ManageExpensesActivity : AppCompatActivity() {
         listener?.let { refExp.removeEventListener(it) }
     }
 
-    /* -------------------- Hapus + perbaiki saldo -------------------- */
+    /* ---------- hapus + saldo ---------- */
     private fun deleteExpense(exp: Expense) {
         refExp.child(exp.id).removeValue()
             .addOnSuccessListener {
-                updateBalance(+exp.amount)   // hapus pengeluaran → saldo naik
+                updateBalance(+exp.amount)            // pengeluaran dihapus → saldo ↑
                 Toast.makeText(this, "Dihapus", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
@@ -82,34 +72,34 @@ class ManageExpensesActivity : AppCompatActivity() {
             }
     }
 
-    /** balance naik, totalExpense turun */
+    /** balance ↑, totalExpense ↓ */
     private fun updateBalance(delta: Long) {
-        val uid      = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val userRef  = FirebaseDatabase.getInstance().reference.child("users").child(uid)
+        val uid     = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userRef = FirebaseDatabase.getInstance().reference.child("users").child(uid)
 
-        fun change(node: String, plus: Boolean) {
-            userRef.child(node).runTransaction(object : Transaction.Handler {
+        fun mutate(node: String, plus: Boolean) = userRef.child(node)
+            .runTransaction(object : Transaction.Handler {
                 override fun doTransaction(cur: MutableData): Transaction.Result {
                     val now = cur.getValue(Long::class.java) ?: 0L
                     cur.value = if (plus) now + delta else now - delta
                     return Transaction.success(cur)
                 }
-                override fun onComplete(e: DatabaseError?, committed: Boolean, snap: DataSnapshot?) {}
+                override fun onComplete(
+                    error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?
+                ) { /* nothing */ }
             })
-        }
-        change("balance",      true)   // saldo + delta
-        change("totalExpense", false)  // totalExpense - delta
+
+        mutate("balance",       true)   // saldo naik
+        mutate("totalExpense",  false)  // totalExpense turun
     }
 
-    /* -------------------- Sinkron scroll header / body -------------------- */
+    /* ---------- header/isi scroll sync ---------- */
     private fun syncHeader() {
-        /* geser header → geser isi */
-        b.headerScrollView.setOnScrollChangeListener { _, x, _, _, _ ->
-            b.contentScrollView.scrollTo(x, 0)
+        b.headerScrollView.setOnScrollChangeListener { _, scrollX, _, _, _ ->
+            b.contentScrollView.scrollTo(scrollX, 0)
         }
-        /* geser isi → geser header */
-        b.contentScrollView.setOnScrollChangeListener { _, x, _, _, _ ->
-            b.headerScrollView.scrollTo(x, 0)
+        b.contentScrollView.setOnScrollChangeListener { _, scrollX, _, _, _ ->
+            b.headerScrollView.scrollTo(scrollX, 0)
         }
     }
 }

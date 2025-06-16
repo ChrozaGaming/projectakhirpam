@@ -11,76 +11,95 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.cloudinary.Cloudinary
+import com.cloudinary.utils.ObjectUtils
 import com.example.projectakhirpam.databinding.ActivityAddExpensesBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Form “Tambah Pengeluaran”
- *  • Data →  /users/{uid}/expenses/{expenseId}
- *  • balance ↓, totalExpense ↑  (transaction-safe)
- *  • receiptUrl = URI lokal (tidak di-upload)
+ * Form “Tambah Pengeluaran” (Expense)
+ *  – upload bukti ke **Cloudinary**
+ *  – simpan node  /users/{uid}/expenses/{expenseId}
+ *  – update balance ↓  &  totalExpense ↑  secara atomic
  */
 class AddExpensesActivity : AppCompatActivity() {
 
+    /* ---------- ViewBinding ---------- */
     private lateinit var b: ActivityAddExpensesBinding
-    private val cal    = Calendar.getInstance()
-    private var imgUri : Uri? = null               // URI lokal (galeri)
 
-    /* ---------- galeri picker ---------- */
+    /* ---------- Cloudinary ---------- */
+    private val cloudinary by lazy {
+        Cloudinary(
+            hashMapOf(
+                "cloud_name" to "dfd671sfr",
+                "api_key"    to "731364415221193",
+                "api_secret" to "QIl2LALYKbOPL45-ndeLxjBWUBM"
+            )
+        )
+    }
+
+    /* ---------- state ---------- */
+    private val cal     = Calendar.getInstance()
+    private var imgUri  : Uri?  = null          // lokal
+    private var imgUrl  : String = ""           // Cloudinary URL setelah upload
+
+    /* ---------- gallery picker ---------- */
     private val picker = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ){ r ->
-        if (r.resultCode == Activity.RESULT_OK){
-            imgUri = r.data?.data
+    ) { res ->
+        if (res.resultCode == Activity.RESULT_OK) {
+            imgUri = res.data?.data
             imgUri?.let {
                 b.ivReceiptPreview.setImageURI(it)
-                b.ivReceiptPreview.visibility           = View.VISIBLE
-                b.layoutUploadPlaceholder.visibility    = View.GONE   // ✅ id yang benar
+                b.ivReceiptPreview.visibility    = View.VISIBLE
+                b.layoutUploadPlaceholder.visibility = View.GONE
             }
         }
     }
 
-    /* ---------- onCreate ---------- */
+    /* ---------- lifecycle ---------- */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityAddExpensesBinding.inflate(layoutInflater)
         setContentView(b.root)
 
-        /* tombol back */
+        /* back */
         b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        /* tanggal default */
+        /* tanggal */
         updateEtDate()
         b.etDate.setOnClickListener { showDatePicker() }
         b.ivCalendar.setOnClickListener { showDatePicker() }
 
-        /* spinner kategori & pembayaran */
+        /* spinners */
         b.spinnerCategory.adapter = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item,
-            listOf(
-                "Makanan & Minuman", "Transportasi", "Belanja",
-                "Tagihan / Utilitas", "Hiburan", "Lainnya"
-            )
+            listOf("Makanan & Minuman","Transportasi","Belanja",
+                "Tagihan / Utilitas","Hiburan","Lainnya")
         )
-        b.spinnerPayment.adapter = ArrayAdapter(
+        b.spinnerPayment.adapter  = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item,
-            listOf("Tunai", "Transfer", "Kartu Kredit", "E-wallet")
+            listOf("Tunai","Transfer","Kartu Kredit","E-wallet")
         )
 
         /* pilih bukti */
-        val pick: View.OnClickListener = View.OnClickListener { openGallery() }
-        b.layoutUploadPlaceholder.setOnClickListener(pick)   // ✅ id yang benar
-        b.ivReceiptPreview.setOnClickListener(pick)
+        b.layoutUploadPlaceholder.setOnClickListener { openGallery() }
+        b.ivReceiptPreview.setOnClickListener        { openGallery() }
 
         /* simpan */
         b.btnSave.setOnClickListener { saveExpense() }
     }
 
-    /* ---------- Date helpers ---------- */
+    /* ---------- UI helpers ---------- */
     private fun showDatePicker() =
         DatePickerDialog(
             this,
@@ -88,83 +107,93 @@ class AddExpensesActivity : AppCompatActivity() {
             cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]
         ).show()
 
-    private fun updateEtDate(){
+    private fun updateEtDate() {
         val fmt = SimpleDateFormat("dd MMM yyyy", Locale("in","ID"))
         b.etDate.setText(fmt.format(cal.time))
     }
 
-    /* ---------- Galeri ---------- */
     private fun openGallery() = picker.launch(
         Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
             type = "image/*"
         }
     )
 
-    /* ---------- Simpan ---------- */
-    private fun saveExpense(){
-        val rawAmt = b.etAmount.text.toString().trim()
-        val amt    = rawAmt.replace("[^0-9]".toRegex(),"").toLongOrNull()
-        if (amt==null || amt<=0){
+    /* ---------- SIMPAN ---------- */
+    private fun saveExpense() {
+        val amtRaw  = b.etAmount.text.toString().trim()
+        val amount  = amtRaw.replace("[^0-9]".toRegex(),"").toLongOrNull()
+        if (amount == null || amount <= 0) {
             Toast.makeText(this,"Jumlah tidak valid",Toast.LENGTH_SHORT).show(); return
         }
 
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val userRef = FirebaseDatabase.getInstance().reference.child("users").child(uid)
         val expRef  = userRef.child("expenses").push()
-        val id      = expRef.key!!
+        val expId   = expRef.key!!
 
-        val expense = Expense(
-            id            = id,
-            date          = cal.timeInMillis,
-            category      = b.spinnerCategory.selectedItem.toString(),
-            amount        = amt,
-            paymentMethod = b.spinnerPayment.selectedItem.toString(),
-            description   = b.etDescription.text.toString(),
-            recipient     = b.etRecipient.text.toString(),
-            receiptUrl    = imgUri?.toString() ?: ""      // URI lokal
-        )
-
+        /* disable tombol */
         b.btnSave.isEnabled = false
-        writeExpense(expRef, expense, userRef, -amt)
+        b.btnSave.text = "Menyimpan…"
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // 1. Upload ke Cloudinary jika ada gambar
+                imgUri?.let { imgUrl = uploadToCloudinary(it) }
+
+                // 2. Buat objek Expense & tulis ke DB
+                val expense = Expense(
+                    id            = expId,
+                    date          = cal.timeInMillis,
+                    category      = b.spinnerCategory.selectedItem.toString(),
+                    amount        = amount,
+                    paymentMethod = b.spinnerPayment.selectedItem.toString(),
+                    description   = b.etDescription.text.toString(),
+                    recipient     = b.etRecipient.text.toString(),
+                    receiptUrl    = imgUrl
+                )
+
+                expRef.setValue(expense).await()
+
+                // 3. Update saldo & totalExpense atomik
+                adjustBalance(userRef, -amount)
+
+                launch(Dispatchers.Main) {
+                    Toast.makeText(this@AddExpensesActivity,
+                        "Pengeluaran tersimpan",Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            } catch (e: Exception) {
+                launch(Dispatchers.Main) {
+                    b.btnSave.isEnabled = true
+                    b.btnSave.text = "Simpan"
+                    Toast.makeText(this@AddExpensesActivity,
+                        "Gagal: ${e.localizedMessage}",Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
-    /* ---------- Firebase writes ---------- */
-    private fun writeExpense(
-        expRef : DatabaseReference,
-        exp    : Expense,
-        userRef: DatabaseReference,
-        delta  : Long          // negatif
-    ){
-        expRef.setValue(exp)
-            .addOnSuccessListener {
-                adjustBalance(userRef, delta)
-                Toast.makeText(
-                    this,
-                    "Pengeluaran disimpan: IDR ${
-                        NumberFormat.getInstance(Locale("in","ID")).format(exp.amount)
-                    }",
-                    Toast.LENGTH_LONG
-                ).show()
-                finish()
-            }
-            .addOnFailureListener {
-                b.btnSave.isEnabled = true
-                Toast.makeText(this,"Gagal: ${it.localizedMessage}",Toast.LENGTH_LONG).show()
-            }
+    /* ---------- upload helper ---------- */
+    private fun uploadToCloudinary(uri: Uri): String {
+        val tmp = File.createTempFile("exp_upload",".tmp",cacheDir)
+        contentResolver.openInputStream(uri)?.use { i ->
+            tmp.outputStream().use { i.copyTo(it) }
+        }
+        val res = cloudinary.uploader().upload(tmp, ObjectUtils.emptyMap())
+        return res["secure_url"] as String
     }
 
-    /* balance ↓  totalExpense ↑ */
-    private fun adjustBalance(userRef: DatabaseReference, balDelta: Long){
-        fun mutate(child: String, diff: Long){
-            userRef.child(child).runTransaction(object: Transaction.Handler{
+    /* ---------- balance & totalExpense ---------- */
+    private fun adjustBalance(userRef: DatabaseReference, delta: Long) {
+        fun mutate(child: String) = userRef.child(child)
+            .runTransaction(object: Transaction.Handler {
                 override fun doTransaction(cur: MutableData): Transaction.Result {
-                    cur.value = (cur.getValue(Long::class.java) ?: 0L) + diff
+                    cur.value = (cur.getValue(Long::class.java) ?: 0L) + delta
                     return Transaction.success(cur)
                 }
-                override fun onComplete(e: DatabaseError?, c:Boolean, s:DataSnapshot?){}
+                override fun onComplete(e: DatabaseError?, b:Boolean, s:DataSnapshot?) {}
             })
-        }
-        mutate("balance",       balDelta)   // balance turun
-        mutate("totalExpense", -balDelta)   // totalExpense naik (+ |delta|)
+        mutate("balance")        // turun
+        mutate("totalExpense")   // naik (karena delta negatif)
     }
 }
