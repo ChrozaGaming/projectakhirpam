@@ -54,8 +54,13 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.google.firebase.auth)
+    implementation ("com.cloudinary:cloudinary-android:2.3.1")
+    implementation ("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.google.android.material:material:1.10.0") // Versi 1.10.0 ke atas support Material 3
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("io.coil-kt:coil:2.4.0")
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

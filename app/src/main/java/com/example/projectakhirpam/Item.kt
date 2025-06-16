@@ -6,5 +6,6 @@ data class Item(
     var name : String = "",
     var stock: Int    = 0,
     var code : String = "",
-    var price: Long   = 0L          // rupiah
+    var price: Long   = 0L,          // rupiah
+    var imageUrl  : String = ""
 )

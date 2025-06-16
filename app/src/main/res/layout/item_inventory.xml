@@ -72,6 +72,15 @@
                 android:padding="4dp"
                 android:src="@drawable/ic_edit"
                 android:tint="#2196F3" />
+
+            <ImageView
+                android:id="@+id/ivEye"
+                android:layout_width="60dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_eye"
+                android:contentDescription="Lihat Foto"
+                android:tint="#2196F3"/>
         </LinearLayout>
     </LinearLayout>
 

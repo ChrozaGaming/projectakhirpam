@@ -25,6 +25,7 @@ junit                       = "4.13.2"
 junitVersion                = "1.2.1"
 espressoCore                = "3.6.1"
 firebaseAuthVersion = "23.2.0"
+firebaseStorage = "21.0.2"
 
 # ─────────── Library alias ───────────
 [libraries]
@@ -48,6 +49,7 @@ junit                               = { group = "junit", name = "junit", version
 androidx-junit                      = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core              = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 google-firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuthVersion" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 
 # ─────────── Plugin alias ───────────
 [plugins]

@@ -1,7 +1,6 @@
 package com.example.projectakhirpam
 
 import android.os.Bundle
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,43 +10,40 @@ import com.google.firebase.database.*
 
 class ManageStockOutActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityManageStockoutBinding
+    private lateinit var b: ActivityManageStockoutBinding
+    private val list = mutableListOf<StockOut>()
     private lateinit var adapter: StockOutAdapter
-    private val stockOutList = mutableListOf<StockOut>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityManageStockoutBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        b = ActivityManageStockoutBinding.inflate(layoutInflater)
+        setContentView(b.root)
 
-        binding.btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        adapter = StockOutAdapter(stockOutList)
-        binding.recyclerStockout.layoutManager = LinearLayoutManager(this)
-        binding.recyclerStockout.adapter = adapter
+        adapter = StockOutAdapter(list)
+        b.recyclerStockout.layoutManager = LinearLayoutManager(this)
+        b.recyclerStockout.adapter       = adapter
 
-        loadStockouts()
+        listenData()
     }
 
-    private fun loadStockouts() {
+    private fun listenData(){
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val ref = FirebaseDatabase.getInstance().getReference("users").child(uid).child("stockouts")
-
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                stockOutList.clear()
-                for (data in snapshot.children) {
-                    val item = data.getValue(StockOut::class.java)
-                    item?.let { stockOutList.add(it) }
+        FirebaseDatabase.getInstance().reference
+            .child("users").child(uid).child("stockouts")
+            .addValueEventListener(object: ValueEventListener{
+                override fun onDataChange(s: DataSnapshot) {
+                    list.clear()
+                    for (c in s.children){
+                        c.getValue(StockOut::class.java)?.let { list += it }
+                    }
+                    adapter.notifyDataSetChanged()
                 }
-                adapter.notifyDataSetChanged()
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@ManageStockOutActivity, "Gagal memuat data", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(e: DatabaseError) {
+                    Toast.makeText(this@ManageStockOutActivity,
+                        "Gagal: ${e.message}",Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }

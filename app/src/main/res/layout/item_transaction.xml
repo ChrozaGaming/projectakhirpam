@@ -1,64 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:padding="16dp"
     android:background="#FFFFFF">
 
-    <!-- ───── Kolom Tanggal ───── -->
     <TextView
         android:id="@+id/tvDate"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="22 Apr 2024"
-        android:textColor="#000000"
-        android:textSize="16sp" />
+        android:textSize="16sp"/>
 
-    <!-- ───── Kolom Kategori ───── -->
     <TextView
         android:id="@+id/tvCategory"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Gaji"
-        android:textColor="#000000"
-        android:textSize="16sp" />
+        android:textSize="16sp"/>
 
-    <!-- ───── Kolom Jumlah ───── -->
     <TextView
         android:id="@+id/tvAmount"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Rp 10.000.000"
-        android:textColor="#000000"
-        android:textSize="16sp" />
+        android:textSize="16sp"/>
 
-    <!-- ───── Kolom Metode Pembayaran ───── -->
     <TextView
         android:id="@+id/tvPayment"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Transfer Bank"
-        android:textColor="#000000"
-        android:textSize="16sp" />
+        android:textSize="16sp"/>
 
-    <!-- ───── Tombol Hapus ───── -->
     <ImageView
         android:id="@+id/btn_delete"
         android:layout_width="60dp"
         android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
         android:src="@drawable/ic_delete"
-        android:contentDescription="Hapus" />
+        android:contentDescription="Hapus"/>
 
-    <!-- (Opsional) tombol lihat bukti -->
     <ImageView
         android:id="@+id/ivViewReceipt"
         android:layout_width="60dp"
         android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
         android:layout_marginStart="8dp"
         android:src="@drawable/ic_eye"
-        android:contentDescription="Lihat Bukti" />
+        android:contentDescription="Lihat Bukti"
+        android:visibility="gone"/>
 </LinearLayout>

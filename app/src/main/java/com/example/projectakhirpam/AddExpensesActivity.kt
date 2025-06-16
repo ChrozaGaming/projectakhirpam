@@ -20,95 +20,92 @@ import java.util.*
 
 /**
  * Form “Tambah Pengeluaran”
- *  • simpan ke  /users/{uid}/expenses/{expenseId}
+ *  • Data →  /users/{uid}/expenses/{expenseId}
  *  • balance ↓, totalExpense ↑  (transaction-safe)
- *  • receiptUrl = uri lokal (tidak upload ke Firebase Storage)
+ *  • receiptUrl = URI lokal (tidak di-upload)
  */
 class AddExpensesActivity : AppCompatActivity() {
 
     private lateinit var b: ActivityAddExpensesBinding
     private val cal    = Calendar.getInstance()
-    private var imgUri : Uri? = null          // URI lokal saja
+    private var imgUri : Uri? = null               // URI lokal (galeri)
 
-    /* ────────── picker galeri ────────── */
+    /* ---------- galeri picker ---------- */
     private val picker = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ) { res ->
-        if (res.resultCode == Activity.RESULT_OK) {
-            imgUri = res.data?.data
+    ){ r ->
+        if (r.resultCode == Activity.RESULT_OK){
+            imgUri = r.data?.data
             imgUri?.let {
                 b.ivReceiptPreview.setImageURI(it)
-                b.ivReceiptPreview.visibility    = View.VISIBLE
-                b.layoutUploadReceipt.visibility = View.GONE
+                b.ivReceiptPreview.visibility           = View.VISIBLE
+                b.layoutUploadPlaceholder.visibility    = View.GONE   // ✅ id yang benar
             }
         }
     }
 
-    /* ────────── lifecycle ────────── */
+    /* ---------- onCreate ---------- */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityAddExpensesBinding.inflate(layoutInflater)
         setContentView(b.root)
 
-        /* ↩ back */
+        /* tombol back */
         b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        /* tanggal */
+        /* tanggal default */
         updateEtDate()
         b.etDate.setOnClickListener { showDatePicker() }
         b.ivCalendar.setOnClickListener { showDatePicker() }
 
-        /* spinner */
+        /* spinner kategori & pembayaran */
         b.spinnerCategory.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
+            this, android.R.layout.simple_spinner_dropdown_item,
             listOf(
                 "Makanan & Minuman", "Transportasi", "Belanja",
                 "Tagihan / Utilitas", "Hiburan", "Lainnya"
             )
         )
         b.spinnerPayment.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
+            this, android.R.layout.simple_spinner_dropdown_item,
             listOf("Tunai", "Transfer", "Kartu Kredit", "E-wallet")
         )
 
-        /* pilih gambar */
-        b.layoutUploadReceipt.setOnClickListener { openGallery() }
-        b.ivReceiptPreview.setOnClickListener    { openGallery() }
+        /* pilih bukti */
+        val pick: View.OnClickListener = View.OnClickListener { openGallery() }
+        b.layoutUploadPlaceholder.setOnClickListener(pick)   // ✅ id yang benar
+        b.ivReceiptPreview.setOnClickListener(pick)
 
         /* simpan */
         b.btnSave.setOnClickListener { saveExpense() }
     }
 
-    /* ────────── helper UI ────────── */
-    private fun showDatePicker() {
+    /* ---------- Date helpers ---------- */
+    private fun showDatePicker() =
         DatePickerDialog(
             this,
-            { _, y, m, d -> cal.set(y, m, d).also { updateEtDate() } },
+            { _, y, m, d -> cal.set(y, m, d); updateEtDate() },
             cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]
         ).show()
-    }
 
-    private fun updateEtDate() {
-        val fmt = SimpleDateFormat("dd MMM yyyy", Locale("in", "ID"))
+    private fun updateEtDate(){
+        val fmt = SimpleDateFormat("dd MMM yyyy", Locale("in","ID"))
         b.etDate.setText(fmt.format(cal.time))
     }
 
-    private fun openGallery() {
-        picker.launch(
-            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
-                type = "image/*"
-            }
-        )
-    }
+    /* ---------- Galeri ---------- */
+    private fun openGallery() = picker.launch(
+        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
+            type = "image/*"
+        }
+    )
 
-    /* ────────── simpan pengeluaran ────────── */
-    private fun saveExpense() {
-        val rawAmt  = b.etAmount.text.toString().trim()
-        val amount  = rawAmt.replace("[^0-9]".toRegex(), "").toLongOrNull()
-        if (amount == null || amount <= 0) {
-            Toast.makeText(this, "Jumlah tidak valid", Toast.LENGTH_SHORT).show(); return
+    /* ---------- Simpan ---------- */
+    private fun saveExpense(){
+        val rawAmt = b.etAmount.text.toString().trim()
+        val amt    = rawAmt.replace("[^0-9]".toRegex(),"").toLongOrNull()
+        if (amt==null || amt<=0){
+            Toast.makeText(this,"Jumlah tidak valid",Toast.LENGTH_SHORT).show(); return
         }
 
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -120,31 +117,31 @@ class AddExpensesActivity : AppCompatActivity() {
             id            = id,
             date          = cal.timeInMillis,
             category      = b.spinnerCategory.selectedItem.toString(),
-            amount        = amount,
+            amount        = amt,
             paymentMethod = b.spinnerPayment.selectedItem.toString(),
             description   = b.etDescription.text.toString(),
             recipient     = b.etRecipient.text.toString(),
-            receiptUrl    = imgUri?.toString() ?: ""      // hanya URI lokal
+            receiptUrl    = imgUri?.toString() ?: ""      // URI lokal
         )
 
         b.btnSave.isEnabled = false
-        writeExpense(expRef, expense, userRef, -amount)
+        writeExpense(expRef, expense, userRef, -amt)
     }
 
-    /* ────────── DB write & saldo ────────── */
+    /* ---------- Firebase writes ---------- */
     private fun writeExpense(
         expRef : DatabaseReference,
         exp    : Expense,
         userRef: DatabaseReference,
-        delta  : Long                                           // negatif
-    ) {
+        delta  : Long          // negatif
+    ){
         expRef.setValue(exp)
             .addOnSuccessListener {
                 adjustBalance(userRef, delta)
                 Toast.makeText(
                     this,
-                    "Pengeluaran tersimpan: IDR ${
-                        NumberFormat.getInstance(Locale("in", "ID")).format(exp.amount)
+                    "Pengeluaran disimpan: IDR ${
+                        NumberFormat.getInstance(Locale("in","ID")).format(exp.amount)
                     }",
                     Toast.LENGTH_LONG
                 ).show()
@@ -152,23 +149,22 @@ class AddExpensesActivity : AppCompatActivity() {
             }
             .addOnFailureListener {
                 b.btnSave.isEnabled = true
-                Toast.makeText(this, "Gagal simpan: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this,"Gagal: ${it.localizedMessage}",Toast.LENGTH_LONG).show()
             }
     }
 
-    /* balance ↓ , totalExpense ↑ */
-    private fun adjustBalance(userRef: DatabaseReference, balDelta: Long) {
-        fun mutate(child: String, delta: Long) {
-            userRef.child(child).runTransaction(object : Transaction.Handler {
+    /* balance ↓  totalExpense ↑ */
+    private fun adjustBalance(userRef: DatabaseReference, balDelta: Long){
+        fun mutate(child: String, diff: Long){
+            userRef.child(child).runTransaction(object: Transaction.Handler{
                 override fun doTransaction(cur: MutableData): Transaction.Result {
-                    val now = cur.getValue(Long::class.java) ?: 0L
-                    cur.value = now + delta
+                    cur.value = (cur.getValue(Long::class.java) ?: 0L) + diff
                     return Transaction.success(cur)
                 }
-                override fun onComplete(e: DatabaseError?, committed: Boolean, s: DataSnapshot?) {}
+                override fun onComplete(e: DatabaseError?, c:Boolean, s:DataSnapshot?){}
             })
         }
-        mutate("balance",       balDelta)   // turun
-        mutate("totalExpense", -balDelta)   // naik (+|delta|)
+        mutate("balance",       balDelta)   // balance turun
+        mutate("totalExpense", -balDelta)   // totalExpense naik (+ |delta|)
     }
 }

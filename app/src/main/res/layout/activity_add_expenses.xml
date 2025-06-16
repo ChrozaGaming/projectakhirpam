@@ -16,264 +16,272 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <!-- 🔙 Tombol Back -->
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="48dp"
-            android:layout_height="88dp"
-            android:layout_marginStart="1dp"
-            android:layout_marginTop="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Kembali"
-            android:padding="18dp"
-            android:src="@drawable/ic_back"
-            app:tint="#2962FF"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="32dp"
-            android:paddingVertical="40dp">
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <!-- Tanggal -->
-            <TextView
+            <!-- 🔙 Tombol Back -->
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="88dp"
+                android:layout_marginStart="1dp"
+                android:layout_marginTop="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Kembali"
+                android:padding="18dp"
+                android:src="@drawable/ic_back"
+                app:tint="#2962FF"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="Transaksi Pengeluaran"
-                android:textAlignment="center"
-                android:textColor="#2962FF"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="40dp">
 
-            <!-- Tanggal -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Tanggal"
-                android:textColor="#212121"
-                android:textSize="18sp" />
+                <!-- Tanggal -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:text="Transaksi Pengeluaran"
+                    android:textAlignment="center"
+                    android:textColor="#2962FF"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
+                <!-- Tanggal -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Tanggal"
+                    android:textColor="#212121"
+                    android:textSize="18sp" />
 
-                <EditText
-                    android:id="@+id/et_date"
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp">
+
+                    <EditText
+                        android:id="@+id/et_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/edit_text_rounded"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:hint="Pilih tanggal"
+                        android:inputType="none"
+                        android:paddingHorizontal="16dp"
+                        android:text="22 Apr 2024"
+                        android:textColor="#212121"
+                        android:textColorHint="#757575"
+                        android:textSize="16sp" />
+
+                    <ImageView
+                        android:id="@+id/iv_calendar"
+                        android:layout_width="32dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="#2962FF" />
+                </FrameLayout>
+
+                <!-- Kategori -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Kategori"
+                    android:textColor="#212121"
+                    android:textSize="18sp" />
+
+                <Spinner
+                    android:id="@+id/spinner_category"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:background="@drawable/edit_text_rounded"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:hint="Pilih tanggal"
-                    android:inputType="none"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/spinner_background"
                     android:paddingHorizontal="16dp"
-                    android:text="22 Apr 2024"
+                    android:spinnerMode="dropdown" />
+
+                <!-- Jumlah -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Jumlah"
+                    android:textColor="#212121"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/et_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/edit_text_rounded"
+                    android:hint="Rp 0"
+                    android:inputType="number"
+                    android:paddingHorizontal="16dp"
                     android:textColor="#212121"
                     android:textColorHint="#757575"
                     android:textSize="16sp" />
 
-                <ImageView
-                    android:id="@+id/iv_calendar"
-                    android:layout_width="32dp"
-                    android:layout_height="28dp"
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_calendar"
-                    app:tint="#2962FF" />
-            </FrameLayout>
-
-            <!-- Kategori -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Kategori"
-                android:textColor="#212121"
-                android:textSize="18sp" />
-
-            <Spinner
-                android:id="@+id/spinner_category"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/spinner_background"
-                android:paddingHorizontal="16dp"
-                android:spinnerMode="dropdown" />
-
-            <!-- Jumlah -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Jumlah"
-                android:textColor="#212121"
-                android:textSize="18sp" />
-
-            <EditText
-                android:id="@+id/et_amount"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/edit_text_rounded"
-                android:hint="Rp 0"
-                android:inputType="number"
-                android:paddingHorizontal="16dp"
-                android:textColor="#212121"
-                android:textColorHint="#757575"
-                android:textSize="16sp" />
-
-            <!-- Metode Pembayaran -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Metode Pembayaran"
-                android:textColor="#212121"
-                android:textSize="18sp" />
-
-            <Spinner
-                android:id="@+id/spinner_payment"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/spinner_background"
-                android:paddingHorizontal="16dp"
-                android:spinnerMode="dropdown" />
-
-            <!-- Deskripsi -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Deskripsi (opsional)"
-                android:textColor="#212121"
-                android:textSize="18sp" />
-
-            <EditText
-                android:id="@+id/et_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/edit_text_rounded"
-                android:hint="Masukkan deskripsi"
-                android:inputType="textMultiLine"
-                android:minHeight="56dp"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:textColor="#212121"
-                android:textColorHint="#757575"
-                android:textSize="16sp" />
-
-            <!-- Penerima -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Penerima (opsional)"
-                android:textColor="#212121"
-                android:textSize="18sp" />
-
-            <EditText
-                android:id="@+id/et_recipient"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/edit_text_rounded"
-                android:hint="Masukkan penerima"
-                android:inputType="text"
-                android:paddingHorizontal="16dp"
-                android:textColor="#212121"
-                android:textColorHint="#757575"
-                android:textSize="16sp" />
-
-            <!-- Bukti Pengeluaran -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Bukti Pengeluaran (opsional)"
-                android:textColor="#212121"
-                android:textSize="18sp" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp">
-
-                <androidx.cardview.widget.CardView
+                <!-- Metode Pembayaran -->
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="0dp">
+                    android:layout_marginBottom="8dp"
+                    android:text="Metode Pembayaran"
+                    android:textColor="#212121"
+                    android:textSize="18sp" />
 
-                    <LinearLayout
-                        android:id="@+id/layout_upload_receipt"
+                <Spinner
+                    android:id="@+id/spinner_payment"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/spinner_background"
+                    android:paddingHorizontal="16dp"
+                    android:spinnerMode="dropdown" />
+
+                <!-- Deskripsi -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Deskripsi (opsional)"
+                    android:textColor="#212121"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/et_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/edit_text_rounded"
+                    android:hint="Masukkan deskripsi"
+                    android:inputType="textMultiLine"
+                    android:minHeight="56dp"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:textColor="#212121"
+                    android:textColorHint="#757575"
+                    android:textSize="16sp" />
+
+                <!-- Penerima -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Penerima (opsional)"
+                    android:textColor="#212121"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/et_recipient"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/edit_text_rounded"
+                    android:hint="Masukkan penerima"
+                    android:inputType="text"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="#212121"
+                    android:textColorHint="#757575"
+                    android:textSize="16sp" />
+
+                <!-- Bukti Pengeluaran -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Bukti Pengeluaran"
+                    android:textColor="#212121"
+                    android:textSize="18sp" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp">
+
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/edit_text_rounded"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp"
+                        android:layout_marginBottom="8dp">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginEnd="16dp"
-                            android:src="@drawable/ic_photo_camera"
-                            app:tint="#757575" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Upload gambar"
-                            android:textColor="#757575"
-                            android:textSize="16sp" />
+                            android:orientation="vertical"
+                            android:gravity="center">
 
-                    </LinearLayout>
+                            <ImageView
+                                android:id="@+id/iv_receipt_preview"
+                                android:layout_width="match_parent"
+                                android:layout_height="200dp"
+                                android:scaleType="centerInside"
+                                android:visibility="gone"
+                                android:contentDescription="Preview Bukti Pengeluaran"
+                                android:background="#F0F0F0"/>
 
-                    <ImageView
-                        android:id="@+id/iv_receipt_preview"
-                        android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:adjustViewBounds="true"
-                        android:scaleType="centerInside"
-                        android:visibility="gone" />
+                            <LinearLayout
+                                android:id="@+id/layout_upload_placeholder"
+                                android:layout_width="match_parent"
+                                android:layout_height="120dp"
+                                android:orientation="vertical"
+                                android:gravity="center"
+                                android:background="#F0F0F0">
 
-                </androidx.cardview.widget.CardView>
+                                <ImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:src="@drawable/ic_upload"
+                                    app:tint="#757575"
+                                    android:layout_marginBottom="8dp"/>
 
-            </FrameLayout>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Ketuk untuk mengunggah bukti"
+                                    android:textColor="#757575"
+                                    android:textSize="14sp"/>
 
-            <!-- Tombol Simpan -->
-            <Button
-                android:id="@+id/btn_save"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:background="@drawable/button_primary"
-                android:text="Simpan"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                            </LinearLayout>
 
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                </FrameLayout>
+                <!-- Tombol Simpan -->
+                <Button
+                    android:id="@+id/btn_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/button_primary"
+                    android:text="Simpan"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

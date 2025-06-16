@@ -1,4 +1,4 @@
-package com.example.projectakhirpam
+package com.example.projectakhirpam          // ← tetap
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,59 +9,63 @@ import com.example.projectakhirpam.databinding.ActivityManageFinancialsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
+// ───── GANTI baris ini ─────
+// import com.example.projectakhirpam.model.Income
+// ───── MENJADI ─────
+import com.example.projectakhirpam.Income
+// atau tulis path sesuai lokasi asli file Income.kt
+
 class ManageFinancialsActivity : AppCompatActivity() {
 
-    private lateinit var b: ActivityManageFinancialsBinding
-    private lateinit var adapter: IncomeAdapter
-    private lateinit var refIn: DatabaseReference
-    private var listener: ValueEventListener? = null
+    private lateinit var b       : ActivityManageFinancialsBinding
+    private lateinit var adapter : IncomeAdapter
+    private lateinit var refIn   : DatabaseReference
+    private var listener : ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityManageFinancialsBinding.inflate(layoutInflater)
         setContentView(b.root)
 
-        /* tombol back */
-        b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
-
-        /* path /users/{uid}/incomes */
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        refIn = FirebaseDatabase.getInstance()
-            .reference.child("users").child(uid).child("incomes")
-
-        /* recycler */
-        adapter = IncomeAdapter { inc -> deleteIncome(inc) }
-        b.recyclerViewTransactions.layoutManager = LinearLayoutManager(this)
-        b.recyclerViewTransactions.adapter = adapter
-
-        /* FAB → AddIncomesActivity */
+        /* tombol back & tambah */
+        b.btnBack.setOnClickListener { finish() }
         b.fabAddTransaction.setOnClickListener {
-            val i = Intent(this@ManageFinancialsActivity, AddIncomesActivity::class.java)
-            startActivity(i)
+            startActivity(Intent(this, AddIncomesActivity::class.java))
         }
+
+        /* RecyclerView */
+        adapter = IncomeAdapter { deleteIncome(it) }
+        b.recyclerViewTransactions.layoutManager = LinearLayoutManager(this)
+        b.recyclerViewTransactions.adapter       = adapter
+
+        /* Firebase reference  users/{uid}/incomes */
+        val uid  = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        refIn    = FirebaseDatabase.getInstance()
+            .reference.child("users").child(uid).child("incomes")
 
         syncHeader()
     }
 
-    /* ----- Realtime listener ----- */
+    /* realtime listener */
     override fun onStart() {
         super.onStart()
         listener = refIn.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val list = snapshot.children
+            override fun onDataChange(ss: DataSnapshot) {
+                val list = ss.children
                     .mapNotNull { it.getValue(Income::class.java) }
                     .sortedByDescending { it.date }
                 adapter.submit(list)
             }
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(e: DatabaseError) {}
         })
     }
+
     override fun onStop() {
         super.onStop()
         listener?.let { refIn.removeEventListener(it) }
     }
 
-    /* ----- Hapus income + update saldo ----- */
+    /* hapus & sesuaikan saldo */
     private fun deleteIncome(inc: Income) {
         refIn.child(inc.id).removeValue()
             .addOnSuccessListener {
@@ -74,23 +78,23 @@ class ManageFinancialsActivity : AppCompatActivity() {
     }
 
     private fun updateBalance(delta: Long) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val userRef = FirebaseDatabase.getInstance().reference.child("users").child(uid)
+        val uid   = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val uRef  = FirebaseDatabase.getInstance().reference.child("users").child(uid)
 
-        fun incNode(child: String) = userRef.child(child)
+        fun incField(field: String) = uRef.child(field)
             .runTransaction(object : Transaction.Handler {
-                override fun doTransaction(cur: MutableData): Transaction.Result {
-                    cur.value = (cur.getValue(Long::class.java) ?: 0L) + delta
-                    return Transaction.success(cur)
+                override fun doTransaction(d: MutableData): Transaction.Result {
+                    d.value = (d.getValue(Long::class.java) ?: 0L) + delta
+                    return Transaction.success(d)
                 }
                 override fun onComplete(e: DatabaseError?, c: Boolean, s: DataSnapshot?) {}
             })
 
-        incNode("balance")
-        incNode("totalIncome")
+        incField("balance")
+        incField("totalIncome")
     }
 
-    /* sinkron scroll header–isi */
+    /* sinkronisasi header–konten */
     private fun syncHeader() {
         b.headerScrollView.setOnScrollChangeListener { _, x, _, _, _ ->
             b.contentScrollView.scrollTo(x, 0)

@@ -175,6 +175,7 @@
                             android:textColor="#2196F3"
                             android:textSize="16sp"
                             android:textStyle="bold" />
+
                     </RelativeLayout>
 
                     <EditText
@@ -188,7 +189,75 @@
                         android:inputType="numberDecimal"
                         android:padding="16dp"
                         android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Unggah Bukti Item"
+                        android:textColor="#212121"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp">
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="8dp"
+                            app:cardElevation="0dp"
+                            android:layout_marginBottom="8dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/iv_receipt_preview"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="200dp"
+                                    android:scaleType="centerInside"
+                                    android:visibility="gone"
+                                    android:contentDescription="Preview Bukti Item"
+                                    android:background="#F0F0F0"/>
+
+                                <LinearLayout
+                                    android:id="@+id/layout_upload_placeholder"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="120dp"
+                                    android:orientation="vertical"
+                                    android:gravity="center"
+                                    android:background="#F0F0F0">
+
+                                    <ImageView
+                                        android:layout_width="48dp"
+                                        android:layout_height="48dp"
+                                        android:src="@drawable/ic_upload"
+                                        app:tint="#757575"
+                                        android:layout_marginBottom="8dp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Ketuk untuk mengunggah bukti"
+                                        android:textColor="#757575"
+                                        android:textSize="14sp"/>
+
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </androidx.cardview.widget.CardView>
+
+                    </FrameLayout>
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
             <com.google.android.material.button.MaterialButton

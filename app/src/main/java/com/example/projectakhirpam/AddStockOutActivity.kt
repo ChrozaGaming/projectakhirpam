@@ -1,172 +1,218 @@
 package com.example.projectakhirpam
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import coil.load
+import com.cloudinary.Cloudinary
+import com.cloudinary.utils.ObjectUtils
 import com.example.projectakhirpam.databinding.ActivityAddStockoutBinding
+import com.example.projectakhirpam.databinding.DialogReceiptPreviewBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AddStockOutActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityAddStockoutBinding
-    private lateinit var database: DatabaseReference
-    private lateinit var itemList: MutableList<Item>
-    private lateinit var itemAdapter: ArrayAdapter<String>
-    private var selectedItem: Item? = null
-    private val calendar = Calendar.getInstance()
+    private lateinit var b       : ActivityAddStockoutBinding
+    private lateinit var db      : DatabaseReference
+    private val items            = mutableListOf<Item>()
+    private var selected : Item? = null
 
+    private val cal = Calendar.getInstance()
+    private var localUri : Uri?  = null
+    private var cloudUrl : String = ""
+
+    /* ---------- Cloudinary ---------- */
+    private val cloudinary by lazy {
+        Cloudinary(
+            mapOf(
+                "cloud_name" to "dfd671sfr",
+                "api_key"    to "731364415221193",
+                "api_secret" to "QIl2LALYKbOPL45-ndeLxjBWUBM"
+            )
+        )
+    }
+
+    /* ---------- gallery picker ---------- */
+    private val picker = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ){ res ->
+        if (res.resultCode == Activity.RESULT_OK){
+            localUri = res.data?.data
+            localUri?.let {
+                b.ivReceiptPreview.setImageURI(it)
+                b.ivReceiptPreview.visibility        = View.VISIBLE
+                b.layoutUploadPlaceholder.visibility = View.GONE
+            }
+        }
+    }
+
+    /* ------------------------------------------------------------------ */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddStockoutBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        b = ActivityAddStockoutBinding.inflate(layoutInflater)
+        setContentView(b.root)
 
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid == null) {
-            Toast.makeText(this, "User belum login", Toast.LENGTH_SHORT).show()
-            finish(); return
-        }
+        /* back */
+        b.btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        database = FirebaseDatabase.getInstance().reference
-        itemList = mutableListOf()
+        /* tanggal */
+        updateEtDate()
+        val dateClick = View.OnClickListener { showDatePicker() }
+        b.etDate.setOnClickListener(dateClick)
+        b.ivCalendar.setOnClickListener(dateClick)
 
+        /* gallery */
+        val imgClick = View.OnClickListener { openGallery() }
+        b.layoutUploadPlaceholder.setOnClickListener(imgClick)
+        b.ivReceiptPreview.setOnClickListener(imgClick)
+
+        /* Firebase & spinner data */
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        db = FirebaseDatabase.getInstance().reference
         loadItems(uid)
 
-        // Tombol kembali
-        binding.btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+        /* simpan */
+        b.btnSave.setOnClickListener { saveStockOut(uid) }
+    }
+
+    /* ---------- UI helpers ---------- */
+    private fun updateEtDate(){
+        val fmt = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        b.etDate.setText(fmt.format(cal.time))
+    }
+    private fun showDatePicker() =
+        DatePickerDialog(this,{_,y,m,d-> cal.set(y,m,d); updateEtDate()},
+            cal[Calendar.YEAR],cal[Calendar.MONTH],cal[Calendar.DAY_OF_MONTH]).show()
+
+    private fun openGallery() = picker.launch(
+        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply{
+            type = "image/*"
+        })
+
+    /* ---------- load spinner ---------- */
+    private fun loadItems(uid:String){
+        db.child("users").child(uid).child("items")
+            .addListenerForSingleValueEvent(object: ValueEventListener{
+                override fun onDataChange(s: DataSnapshot) {
+                    items.clear()
+                    val names = mutableListOf<String>()
+                    for (c in s.children){
+                        c.getValue(Item::class.java)?.let { items.add(it); names.add(it.name) }
+                    }
+                    val adp = ArrayAdapter(
+                        this@AddStockOutActivity,
+                        android.R.layout.simple_spinner_item, names
+                    ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)}
+                    b.spItem.adapter = adp
+                    b.spItem.setOnPosChanged { pos -> selected = items.getOrNull(pos) }
+                }
+                override fun onCancelled(e: DatabaseError) { }
+            })
+    }
+    /* spinner extension */
+    private fun android.widget.Spinner.setOnPosChanged(cb:(Int)->Unit){
+        onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, v: View?, p: Int, id: Long) = cb(p)
+            override fun onNothingSelected(p0: AdapterView<*>?) = cb(-1)
+        }
+    }
+
+    /* ---------- SAVE ---------- */
+    private fun saveStockOut(uid:String){
+        val qty = b.etQty.text.toString().trim().toIntOrNull()
+        if (selected==null || qty==null || qty<=0){
+            Toast.makeText(this,"Lengkapi data",Toast.LENGTH_SHORT).show(); return
+        }
+        if (selected!!.stock < qty){
+            Toast.makeText(this,"Stok tidak mencukupi",Toast.LENGTH_SHORT).show(); return
         }
 
-        // Pilih tanggal
-        binding.etDate.setOnClickListener {
-            showDatePicker()
-        }
+        /* upload (optional) & DB write di coroutine */
+        b.btnSave.isEnabled = false
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                localUri?.let { cloudUrl = uploadToCloudinary(it) }
 
-        // Simpan data
-        binding.btnSave.setOnClickListener {
-            val qtyText = binding.etQty.text.toString().trim()
-            val dateText = binding.etDate.text.toString().trim()
-            val destText = binding.etDest.text.toString().trim()
-            val noteText = binding.etNote.text.toString().trim()
+                writeToFirebase(uid, qty)
 
-            if (selectedItem == null || qtyText.isEmpty() || dateText.isEmpty()) {
-                Toast.makeText(this, "Lengkapi semua field", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val qty = qtyText.toIntOrNull()
-            if (qty == null || qty <= 0) {
-                Toast.makeText(this, "Jumlah tidak valid", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (selectedItem!!.stock < qty) {
-                Toast.makeText(this, "Stok tidak mencukupi", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val stockoutRef = database.child("users").child(uid).child("stockouts")
-            val itemRef = database.child("users").child(uid).child("items").child(selectedItem!!.id)
-            val stockoutId = stockoutRef.push().key ?: return@setOnClickListener
-            val timestamp = System.currentTimeMillis()
-            val totalPrice = selectedItem!!.price * qty
-
-            val stockoutData = mapOf(
-                "id" to stockoutId,
-                "itemId" to selectedItem!!.id,
-                "itemName" to selectedItem!!.name,
-                "qty" to qty,
-                "unitPrice" to selectedItem!!.price,
-                "totalPrice" to totalPrice,
-                "date" to dateText,
-                "destination" to destText,
-                "note" to noteText,
-                "timestamp" to timestamp
-            )
-
-            val updates = hashMapOf<String, Any>(
-                "/users/$uid/stockouts/$stockoutId" to stockoutData,
-                "/users/$uid/items/${selectedItem!!.id}/stock" to (selectedItem!!.stock - qty)
-            )
-
-            database.updateChildren(updates)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Stock out berhasil disimpan", Toast.LENGTH_SHORT).show()
+                launch(Dispatchers.Main){
+                    Toast.makeText(this@AddStockOutActivity,
+                        "Stock-out tersimpan",Toast.LENGTH_SHORT).show()
                     finish()
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Gagal menyimpan: ${it.message}", Toast.LENGTH_LONG).show()
+            }catch (e: Exception){
+                launch(Dispatchers.Main){
+                    b.btnSave.isEnabled = true
+                    Toast.makeText(this@AddStockOutActivity,
+                        "Gagal: ${e.localizedMessage}",Toast.LENGTH_LONG).show()
                 }
+            }
         }
     }
 
-    private fun loadItems(uid: String) {
-        val ref = database.child("users").child(uid).child("items")
-
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                itemList.clear()
-                val itemNames = mutableListOf<String>()
-
-                for (child in snapshot.children) {
-                    val item = child.getValue(Item::class.java)
-                    item?.let {
-                        itemList.add(it)
-                        itemNames.add(it.name)
-                    }
-                }
-
-                itemAdapter = ArrayAdapter(
-                    this@AddStockOutActivity,
-                    android.R.layout.simple_spinner_item,
-                    itemNames
-                )
-                itemAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                binding.spItem.adapter = itemAdapter
-
-                binding.spItem.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
-                        selectedItem = itemList[position]
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>?) {
-                        selectedItem = null
-                    }
-                }
-
-                if (itemList.isEmpty()) {
-                    Toast.makeText(this@AddStockOutActivity, "Item tidak ditemukan", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@AddStockOutActivity, "Gagal memuat item: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+    /* ---------- Cloudinary upload ---------- */
+    private fun uploadToCloudinary(uri: Uri): String {
+        val tmp = File.createTempFile("upload", ".tmp", cacheDir)
+        contentResolver.openInputStream(uri)?.use { inp ->
+            tmp.outputStream().use { out -> inp.copyTo(out) }
+        }
+        val res = cloudinary.uploader().upload(tmp, ObjectUtils.emptyMap())
+        return res["secure_url"] as String
     }
 
-    private fun showDatePicker() {
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+    /* ---------- Firebase write ---------- */
+    private suspend fun writeToFirebase(uid:String, qty:Int){
+        val stockOutRef = db.child("users").child(uid).child("stockouts")
+        val id          = stockOutRef.push().key ?: return
+        val totalPrice  = selected!!.price * qty
 
-        val datePicker = DatePickerDialog(this, { _, y, m, d ->
-            calendar.set(y, m, d)
-            val format = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-            binding.etDate.setText(format.format(calendar.time))
-        }, year, month, day)
+        val data = StockOut(
+            id           = id,
+            itemId       = selected!!.id,
+            itemName     = selected!!.name,
+            qty          = qty,
+            unitPrice    = selected!!.price,
+            totalPrice   = totalPrice,
+            date         = b.etDate.text.toString(),
+            destination  = b.etDest.text.toString(),
+            note         = b.etNote.text.toString(),
+            timestamp    = System.currentTimeMillis(),
+            receiptUrl   = cloudUrl                     // <—
+        )
 
-        datePicker.show()
+        val upd = hashMapOf<String,Any>(
+            "/users/$uid/stockouts/$id"                to data,
+            "/users/$uid/items/${selected!!.id}/stock" to (selected!!.stock - qty)
+        )
+        db.updateChildren(upd).await()
+    }
+
+    /* ---------- utility: preview image (dipakai di adapter) ---------- */
+    fun previewImage(url:String){
+        val vb = DialogReceiptPreviewBinding.inflate(layoutInflater)
+        val dlg = AlertDialog.Builder(this,
+            android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+            .setView(vb.root).create()
+        vb.ivReceiptBig.load(url)
+        vb.btnClose.setOnClickListener { dlg.dismiss() }
+        dlg.show()
     }
 }
