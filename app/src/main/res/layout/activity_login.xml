@@ -24,21 +24,21 @@
         <!-- Logo -->
         <ImageView
             android:id="@+id/img_logo"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:src="@drawable/developer3"
-            android:contentDescription="Logo" />
+            android:layout_width="226dp"
+            android:layout_height="227dp"
+            android:contentDescription="Logo"
+            android:src="@drawable/ic_logo" />
 
         <!-- Title -->
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Welcome to MyApp"
-            android:textColor="#1F4EC6"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+        <!--        <TextView-->
+        <!--            android:id="@+id/tv_title"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="16dp"-->
+        <!--            android:text="LogiKas"-->
+        <!--            android:textColor="#1F4EC6"-->
+        <!--            android:textSize="24sp"-->
+        <!--            android:textStyle="bold" />-->
 
         <!-- Subtitle -->
         <TextView
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Sign in using your email and password, or Google account."
+            android:text="Selamat datang! silahkan masukkan akun kamu."
             android:textColor="#808080"
             android:textSize="14sp"
             android:textAlignment="center" />
@@ -81,7 +81,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Login with Email"
+            android:text="MASUK"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:backgroundTint="@color/blue_primary" />
@@ -89,7 +89,7 @@
         <!-- Google Sign-In -->
         <com.google.android.gms.common.SignInButton
             android:id="@+id/btn_google_sign_in"
-            android:layout_width="wrap_content"
+            android:layout_width="367dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp" />
 
@@ -99,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Don't have an account? Register here"
+            android:text="Belum punya akun? Daftar dulu yuk!"
             android:textColor="#1F4EC6"
             android:textSize="14sp"
             android:textStyle="bold"

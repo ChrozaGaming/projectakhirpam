@@ -37,25 +37,40 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-        auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener { t ->
-            if (t.isSuccessful) {
-                val uid = t.result?.user?.uid ?: return@addOnCompleteListener
-                val user = User(uid, name, email)    // saldo & agregat = 0
-                FirebaseDatabase.getInstance()
-                    .reference.child("users").child(uid).setValue(user)
+        auth.createUserWithEmailAndPassword(email, pass)
+            .addOnCompleteListener { authTask ->
+                if (!authTask.isSuccessful) {
+                    Toast.makeText(
+                        this,
+                        "Gagal registrasi: ${authTask.exception?.localizedMessage}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@addOnCompleteListener
+                }
 
-                auth.signOut() // paksa login ulang
-                Toast.makeText(this, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
-                startActivity(
-                    Intent(this, LoginActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-                finish()
-            } else {
-                Toast.makeText(this,
-                    "Gagal registrasi: ${t.exception?.localizedMessage}",
-                    Toast.LENGTH_LONG).show()
+                val uid  = authTask.result?.user?.uid ?: return@addOnCompleteListener
+                val user = User(uid = uid, fullName = name, email = email)
+
+                FirebaseDatabase.getInstance()
+                    .reference.child("users").child(uid)
+                    .setValue(user)
+                    .addOnCompleteListener { dbTask ->
+                        if (dbTask.isSuccessful) {
+                            auth.signOut()
+                            Toast.makeText(this, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
+                            startActivity(
+                                Intent(this, LoginActivity::class.java)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                            finish()
+                        } else {
+                            Toast.makeText(
+                                this,
+                                "Gagal menyimpan data: ${dbTask.exception?.localizedMessage}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
             }
-        }
     }
 }

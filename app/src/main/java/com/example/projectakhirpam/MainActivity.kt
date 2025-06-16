@@ -15,57 +15,54 @@ class MainActivity : AppCompatActivity() {
     private lateinit var userRef: DatabaseReference
     private var listener: ValueEventListener? = null
 
-    /* ------------------------------------------------------------ */
-    /* 1. Life-cycle                                               */
-    /* ------------------------------------------------------------ */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // --- Firebase auth ---
         auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid ?: run {
             Toast.makeText(this, "Belum login, keluar…", Toast.LENGTH_SHORT).show()
             finish(); return
         }
 
-        // --- Realtime DB reference ---
         userRef = FirebaseDatabase.getInstance().reference
             .child("users").child(uid)
 
-        // --- Listener user info ---
         listener = object : ValueEventListener {
-            override fun onDataChange(s: DataSnapshot) {
-                binding.tvFullName.text =
-                    s.child("fullName").getValue(String::class.java) ?: "User"
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) return
 
-                val balance = s.child("balance").getValue(Long::class.java) ?: 0L
+                binding.tvFullName.text =
+                    snapshot.child("fullName").getValue(String::class.java) ?: "Anonim"
+
+                val balance = snapshot.child("balance").getValue(Long::class.java) ?: 0L
                 binding.tvBalance.text = "IDR %,d".format(balance)
 
-                // total nilai stock-out
                 var totalValue = 0L
-                for (so in s.child("stockouts").children) {
-                    totalValue += so.child("totalPrice")
-                        .getValue(Long::class.java) ?: 0L
+                snapshot.child("stockouts").children.forEach { so ->
+                    totalValue += so.child("totalPrice").getValue(Long::class.java) ?: 0L
                 }
                 binding.tvStockValue.text = "IDR %,d".format(totalValue)
 
-                // total qty item
                 var qty = 0
-                for (it in s.child("items").children) {
-                    qty += it.child("stock").getValue(Int::class.java) ?: 0
+                snapshot.child("items").children.forEach { item ->
+                    qty += item.child("stock").getValue(Int::class.java) ?: 0
                 }
                 binding.tvItemsInStock.text = "%,d".format(qty)
             }
 
-            override fun onCancelled(e: DatabaseError) =
-                Toast.makeText(this@MainActivity,
-                    "Gagal memuat data: ${e.message}", Toast.LENGTH_SHORT).show()
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Gagal memuat data: ${error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
         userRef.addValueEventListener(listener!!)
 
-        // --- Tombol kartu ---
+        /* Tombol kartu */
         binding.btnAddItem.setOnClickListener {
             startActivity(Intent(this, AddItemActivity::class.java))
         }
@@ -85,10 +82,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ManageStockOutActivity::class.java))
         }
 
-        // --- Bottom-Nav listener ---
+        /* Bottom navigation */
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home    -> true             // sudah di sini
+                R.id.nav_home    -> true
                 R.id.nav_profile -> {
                     startActivity(Intent(this, ProfileActivity::class.java))
                     true
@@ -98,7 +95,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Selalu kembalikan highlight ke Beranda ketika activity muncul lagi */
     override fun onResume() {
         super.onResume()
         binding.bottomNavigation.menu

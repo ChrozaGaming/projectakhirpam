@@ -1,6 +1,5 @@
 package com.example.projectakhirpam
 
-/** Node /users/{uid} */
 data class User(
     val uid: String = "",
     val fullName: String = "",
