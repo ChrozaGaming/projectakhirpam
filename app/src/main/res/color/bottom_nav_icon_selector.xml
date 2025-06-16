@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="#53BBE2" android:state_checked="true"/> <!-- warna hijau aktif -->
-    <item android:color="#777777"/> <!-- warna default -->
+    <!-- active / checked -->
+    <item android:color="#2196F3" android:state_checked="true"/>
+    <!-- default / not-checked -->
+    <item android:color="#999999"/>
 </selector>
