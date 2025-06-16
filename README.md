@@ -95,9 +95,6 @@ Tujuannya adalah memberikan **kemudahan pencatatan** untuk pengguna yang membutu
 
 ---
 
-## 🖼️ Screenshot Aplikasi
-📸 *(Akan ditambahkan pada tahap selanjutnya)*
-
 ---
 
 ## 💻 Cara Instalasi
