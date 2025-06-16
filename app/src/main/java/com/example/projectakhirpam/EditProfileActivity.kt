@@ -18,49 +18,51 @@ class EditProfileActivity : AppCompatActivity() {
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        /* ---------- Firebase init ---------- */
         auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid ?: return finish()
+        userRef = FirebaseDatabase.getInstance().reference
+            .child("users")
+            .child(uid)
 
-        userRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
-
-        // Load data awal ke input
+        /* ---------- Muat data awal ---------- */
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                binding.etFullName.setText(snapshot.child("fullName").getValue(String::class.java))
-                binding.etEmail.setText(snapshot.child("email").getValue(String::class.java))
+            override fun onDataChange(s: DataSnapshot) {
+                binding.etFullName.setText(
+                    s.child("fullName").getValue(String::class.java) ?: ""
+                )
+                // Jika tetap ingin menampilkan e-mail, bisa pakai Toast/log di sini
+                // val email = s.child("email").getValue(String::class.java)
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@EditProfileActivity, "Gagal memuat data", Toast.LENGTH_SHORT).show()
+            override fun onCancelled(e: DatabaseError) {
+                Toast.makeText(
+                    this@EditProfileActivity,
+                    e.toException().toUserMessage(),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
 
-        // Tombol Simpan
-        binding.btnSave.setOnClickListener {
-            val newName = binding.etFullName.text.toString().trim()
-            val newEmail = binding.etEmail.text.toString().trim()
+        /* tombol */
+        binding.btnSave.setOnClickListener { saveNameOnly() }
+        binding.toolbar.setNavigationOnClickListener { finish() }
+    }
 
-            if (newName.isEmpty() || newEmail.isEmpty()) {
-                Toast.makeText(this, "Nama dan email tidak boleh kosong", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+    /** Simpan hanya Nama ke Realtime DB */
+    private fun saveNameOnly() {
+        val newName = binding.etFullName.text.toString().trim()
+        if (newName.isEmpty()) {
+            Toast.makeText(this, "Nama tidak boleh kosong", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            val updates = mapOf(
-                "fullName" to newName,
-                "email" to newEmail
-            )
-
-            userRef.updateChildren(updates).addOnSuccessListener {
-                Toast.makeText(this, "Profil diperbarui", Toast.LENGTH_SHORT).show()
+        userRef.child("fullName").setValue(newName)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Nama diperbarui", Toast.LENGTH_SHORT).show()
                 finish()
-            }.addOnFailureListener {
-                Toast.makeText(this, "Gagal menyimpan: ${it.message}", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        // Tombol kembali
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
-        }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, e.toUserMessage(), Toast.LENGTH_LONG).show()
+            }
     }
 }
